@@ -1,43 +1,38 @@
+import {Suspense} from 'react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   NavLink,
+  Redirect,
 } from "react-router-dom"
 import Logo from '../assets/react.svg';
-import { LazyPage1, LazyPage2, LazyPage3 } from "../01-lazyload/pages";
+import { routes } from "./routes";
 
 export const RoutesNavigation = () => {
   return (
-    <Router>
-      <div className='main-layout'>
-        <nav>
-          <img src={Logo} alt="" />
-          <ul>
-            <li>
-              <NavLink to={"/lasy1"} activeClassName="nav-active">lasy1</NavLink>
-            </li>
-            <li>
-              <NavLink to={"/lasy2"} activeClassName="nav-active">lasy2</NavLink>
-            </li>
-            <li>
-              <NavLink to={"/lasy3"} activeClassName="nav-active">lasy3</NavLink>
-            </li>
-          </ul>
-        </nav>
+    <Suspense fallback= {null}>
+      <Router>
+        <div className='main-layout'>
+          <nav>
+            <img src={Logo} alt="" />
+            <ul>
+              {routes.map( route => (
+                <li key={route.path}>
+                  <NavLink to={route.path} activeClassName="nav-active">{route.name}</NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-        <Switch>
-          <Route path="/lasy1">
-            <LazyPage1 />
-          </Route>
-          <Route path="/lasy2">
-            <LazyPage2 />
-          </Route>
-          <Route path="/lasy3">
-            <LazyPage3 />
-          </Route>
-        </Switch>
-      </div>
-    </Router>
+          <Switch>
+            {routes.map( route => (
+              <Route key={route.path} path={route.path} render={ () => <route.Component />}></Route>
+            ))}
+            <Redirect to={routes[0].path} />
+          </Switch>
+        </div>
+      </Router>
+    </Suspense>
   )
 }
